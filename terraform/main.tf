@@ -29,16 +29,17 @@ resource "aws_ecs_task_definition" "task_definition" {
   family                   = "helloWorld"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = "256"
-  memory                   = "512"
+  cpu                      = "1024"
+  memory                   = "2048"
 
-  execution_role_arn = "arn:aws:iam::303981612052:role/ecsTaskExecutionRole"
-  task_role_arn = "arn:aws:iam::303981612052:role/ecsTaskExecutionRole"
+  execution_role_arn = var.rolearn
+  task_role_arn = var.rolearn
+
   container_definitions = <<EOF
   [
     {
       "name": "candidate-app",
-      "image": "redbarondr1/cadidate-app:1.0",
+      "image": "redbarondr1/candidate-app:2.2",
       "portMappings": [
         {
           "containerPort": 5000,
@@ -47,7 +48,16 @@ resource "aws_ecs_task_definition" "task_definition" {
           "appProtocol": "http"
         }
       ],
-      "essential": true
+      "essential": true,
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+            "awslogs-group": "test",
+            "awslogs-region": "eu-central-1",
+            "awslogs-create-group": "true",
+            "awslogs-stream-prefix": "test"
+        }
+      }
     }
   ]
   EOF
@@ -64,9 +74,15 @@ resource "aws_ecs_service" "service" {
 
   network_configuration {
     security_groups = [aws_security_group.service.id]
-    subnets = ["subnet-ddb3ada0","subnet-577f921b","subnet-8d9d3ee7"]
+    subnets = var.subnets
     assign_public_ip = true
   }
+
+  load_balancer {
+    target_group_arn = aws_alb_target_group.main.arn
+    container_name   = "candidate-app"
+    container_port   = var.container_port
+ }
 }
 
 # Create the security group for the ECS service
@@ -74,11 +90,11 @@ resource "aws_security_group" "service" {
   name        = "your_service_security_group"
   description = "Security group for your ECS service"
 
-  vpc_id = "vpc-c1fa01ab"
+  vpc_id = var.vpcid
 
   ingress {
     from_port   = 80
-    to_port     = 5000
+    to_port     = var.container_port
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }

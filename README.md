@@ -21,7 +21,7 @@ To do this assessment follow these preliminary steps:
 
 In a virtualenv, run:
 
-    python setup.py install FLASK_APP=hello flask run
+    python setup.py install && FLASK_APP=hello flask run
 
 ## Tasks to complete
 
