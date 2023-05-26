@@ -3,8 +3,8 @@ name: build image and publish in the registry
 on:
   push:
     branches:
-      - action
-      
+      - actions
+
 jobs:     
   build:
     needs: test

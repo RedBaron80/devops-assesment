@@ -3,7 +3,7 @@ name: Workflow to ECS
 on:
   push:
     branches:
-      - action
+      - actions
 
 jobs:
   - name: Include test
