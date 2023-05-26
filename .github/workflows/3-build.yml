@@ -1,3 +1,10 @@
+name: build image and publish in the registry
+
+on:
+  push:
+    branches:
+      - action
+      
 jobs:     
   build:
     needs: test
