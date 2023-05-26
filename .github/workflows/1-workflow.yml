@@ -66,6 +66,7 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
       
       - name: Build and push Docker image
+        id: buildDocker
         uses: docker/build-push-action@v4
         with:
           context: .
@@ -98,7 +99,7 @@ jobs:
       with:
         task-definition: ${{ env.ECS_TASK_DEFINITION }}
         container-name: ${{ env.CONTAINER_NAME }}
-        image: ${{ steps.build-image.outputs.image }}
+        image: ${{ jobs.build.steps.buildDocker.outputs.image }}
 
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@df9643053eda01f169e64a0e60233aacca83799a
