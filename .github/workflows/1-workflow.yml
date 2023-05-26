@@ -44,7 +44,7 @@ jobs:
     # needs: test
     runs-on: ubuntu-latest
     outputs:
-      image: ${{ steps.meta.outputs.tags }}
+     image_name: ${{ steps.get-build-name.outputs.image_name }}
     
     steps:
       - name: Checkout code
@@ -76,6 +76,12 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - id: get-build-name
+        run: |
+          imageName=${{ fromJSON(steps.buildDocker.outputs.metadata)['image.name'] }}
+          echo "::set-output name=image_name::$imageName"
+
           
   deploy:
     needs: build
@@ -101,7 +107,7 @@ jobs:
       with:
         task-definition: ${{ env.ECS_TASK_DEFINITION }}
         container-name: ${{ env.CONTAINER_NAME }}
-        image: ${{ needs.build.outputs.image }}
+        image: redbarondr1/candidate-app${{ needs.build.outputs.image_name }}
 
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@df9643053eda01f169e64a0e60233aacca83799a
