@@ -44,7 +44,7 @@ jobs:
     # needs: test
     runs-on: ubuntu-latest
     outputs:
-     image_name: ${{ steps.get-build-name.outputs.image_name }}
+     tag: ${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
     
     steps:
       - name: Checkout code
@@ -77,10 +77,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - id: get-build-name
-        run: |
-          imageName=${{ fromJSON(steps.buildDocker.outputs.metadata)['image.name'] }}
-          echo "{image_name}={$imageName}" >> $GITHUB_OUTPUT
 
           
   deploy:
