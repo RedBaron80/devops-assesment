@@ -6,6 +6,13 @@ on:
       - actions
     tags:
       - '*'
+env:
+  AWS_REGION: eu-central-1                   # set this to your preferred AWS region, e.g. us-west-1
+  ECS_SERVICE: candidate-app                 # set this to your Amazon ECS service name
+  ECS_CLUSTER: candidateCluster                 # set this to your Amazon ECS cluster name
+  ECS_TASK_DEFINITION: task-definition.json	       # set this to the path to your Amazon ECS task definition
+  CONTAINER_NAME: candidate-app	
+    
 
 jobs:
   test:
@@ -66,3 +73,35 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          
+  deploy:
+  
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@0e613a0980cbf65ed5b322eb7a1e075d28913a83
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Download task definition
+      run: |
+        aws ecs describe-task-definition --task-definition helloWorld --query taskDefinition > ${{ env.ECS_TASK_DEFINITION }}
+
+    - name: Fill in the new image ID in the Amazon ECS task definition
+      id: task-def
+      uses: aws-actions/amazon-ecs-render-task-definition@c804dfbdd57f713b6c079302a4c01db7017a36fc
+      with:
+        task-definition: ${{ env.ECS_TASK_DEFINITION }}
+        container-name: ${{ env.CONTAINER_NAME }}
+        image: ${{ steps.build-image.outputs.image }}
+
+    - name: Deploy Amazon ECS task definition
+      uses: aws-actions/amazon-ecs-deploy-task-definition@df9643053eda01f169e64a0e60233aacca83799a
+      with:
+        task-definition: ${{ steps.task-def.outputs.task-definition }}
+        service: ${{ env.ECS_SERVICE }}
+        cluster: ${{ env.ECS_CLUSTER }}
+        wait-for-service-stability: false

@@ -1,18 +1,18 @@
 variable vpcid {
   type        = string
-  default     = "vpc-0c8f4678352761944"
+  default     = "vpc-c1fa01ab"
   description = "vpc id"
 }
 
 variable subnets {
   type        = list(string)
-  default     = ["subnet-08a144e77a69a06c8","subnet-018a7369f0d0d009c"]
+  default     = ["subnet-ddb3ada0","subnet-577f921b","subnet-8d9d3ee7"]
   description = "subnets of main vpc"
 }
 
 variable rolearn {
   type        = string
-  default     = "arn:aws:iam::123667557107:role/tp"
+  default     = "arn:aws:iam::303981612052:role/ecsTaskExecutionRole"
   description = "description"
 }
 

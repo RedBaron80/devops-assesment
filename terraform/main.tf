@@ -48,16 +48,7 @@ resource "aws_ecs_task_definition" "task_definition" {
           "appProtocol": "http"
         }
       ],
-      "essential": true,
-      "logConfiguration": {
-        "logDriver": "awslogs",
-        "options": {
-            "awslogs-group": "test",
-            "awslogs-region": "eu-central-1",
-            "awslogs-create-group": "true",
-            "awslogs-stream-prefix": "test"
-        }
-      }
+      "essential": true
     }
   ]
   EOF
