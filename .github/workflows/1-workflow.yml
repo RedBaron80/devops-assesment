@@ -80,7 +80,7 @@ jobs:
       - id: get-build-name
         run: |
           imageName=${{ fromJSON(steps.buildDocker.outputs.metadata)['image.name'] }}
-          echo "::set-output name=image_name::$imageName"
+          echo "{image_name}={$imageName}" >> $GITHUB_OUTPUT
 
           
   deploy:
