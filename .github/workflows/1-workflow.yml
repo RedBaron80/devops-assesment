@@ -1,0 +1,13 @@
+name: Workflow to ECS
+
+on:
+  push:
+    branches:
+      - action
+
+jobs:
+  - name: Include test
+    uses: ./.github/workflows/1-test.yml
+
+  - name: Include ci
+    uses: ./.github/workflows/2-build.yml
