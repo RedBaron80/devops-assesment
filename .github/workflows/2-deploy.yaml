@@ -3,6 +3,7 @@ name: Build and deploy to ECS
 on:
   pull_request:
     types: [closed]
+    branches: [ master ]
 
 
 env:
