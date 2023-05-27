@@ -9,8 +9,8 @@ on:
 env:
   AWS_REGION: eu-central-1                   # set this to your preferred AWS region, e.g. us-west-1
   ECS_SERVICE: candidate-app                 # set this to your Amazon ECS service name
-  ECS_CLUSTER: candidateCluster                 # set this to your Amazon ECS cluster name
-  ECS_TASK_DEFINITION: task-definition.json	       # set this to the path to your Amazon ECS task definition
+  ECS_CLUSTER: candidateCluster              # set this to your Amazon ECS cluster name
+  ECS_TASK_DEFINITION: task-definition.json	 # set this to the path to your Amazon ECS task definition
   CONTAINER_NAME: candidate-app	
     
 jobs:  
@@ -58,7 +58,10 @@ jobs:
           
   deploy:
     needs: build
-    if: github.event.pull_request.merged == true
+    if: |
+      always() &&
+      needs.build.result == 'success' && 
+      github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
