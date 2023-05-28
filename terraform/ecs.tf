@@ -7,13 +7,13 @@ resource "aws_ecs_cluster" "cluster" {
   }
 }
 
-# Create the ECS task definition
+# Create the ECS task definition. This can be removed once the cluster is installed, as it should get deployed by the CD pipeline.
 resource "aws_ecs_task_definition" "task_definition" {
   family                   = "helloWorld"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = "1024"
-  memory                   = "2048"
+  cpu                      = var.resources.example-service.cpu
+  memory                   = var.resources.example-service.memory
 
   execution_role_arn = var.rolearn
   task_role_arn = var.rolearn
@@ -22,7 +22,7 @@ resource "aws_ecs_task_definition" "task_definition" {
   [
     {
       "name": "candidate-app",
-      "image": "redbarondr1/candidate-app:2.2",
+      "image": "redbarondr1/candidate-app:sha-b15667b",
       "portMappings": [
         {
           "containerPort": 5000,
@@ -31,7 +31,17 @@ resource "aws_ecs_task_definition" "task_definition" {
           "appProtocol": "http"
         }
       ],
-      "essential": true
+      "essential": true,
+      "HealthCheck": {
+        "Command": [
+            "CMD-SHELL",
+            "curl -f http://localhost:5000/ || exit 1"
+        ],
+        "Interval": 10,
+        "Timeout": 2,
+        "Retries": 3,
+        "StartPeriod": 10
+      }
     }
   ]
   EOF
@@ -39,7 +49,7 @@ resource "aws_ecs_task_definition" "task_definition" {
 
 # Create the ECS service
 resource "aws_ecs_service" "service" {
-  name            = "candidate-app"
+  name            = var.app_name
   cluster         = aws_ecs_cluster.cluster.id
   task_definition = aws_ecs_task_definition.task_definition.arn
   desired_count   = 2
@@ -48,13 +58,13 @@ resource "aws_ecs_service" "service" {
 
   network_configuration {
     security_groups = [aws_security_group.service.id]
-    subnets = var.subnets
+    subnets = data.aws_subnets.default.ids
     assign_public_ip = true
   }
 
   load_balancer {
     target_group_arn = aws_alb_target_group.main.arn
-    container_name   = "candidate-app"
+    container_name   = var.app_name
     container_port   = var.container_port
  }
 }
@@ -64,7 +74,7 @@ resource "aws_security_group" "service" {
   name        = "your_service_security_group"
   description = "Security group for your ECS service"
 
-  vpc_id = var.vpcid
+  vpc_id = data.aws_vpc.default.id
 
   ingress {
     from_port   = 80

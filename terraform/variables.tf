@@ -21,3 +21,21 @@ variable container_port {
   default     = "5000"
   description = "container port"
 }
+variable "resources" {
+  type = map(object({
+    cpu    = number
+    memory = number
+  }))
+  default = {
+    example-service = {
+      cpu    = 512
+      memory = 1024
+    }
+  }
+}
+
+variable app_name {
+  type        = string
+  default     = "candidate-app"
+  description = "container and service name"
+}

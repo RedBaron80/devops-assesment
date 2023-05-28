@@ -3,7 +3,7 @@ resource "aws_lb" "main" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb.id]
-  subnets            = var.subnets
+  subnets            = data.aws_subnets.default.ids
  
   enable_deletion_protection = false
 }
@@ -12,7 +12,7 @@ resource "aws_alb_target_group" "main" {
   name        = "candidatetg"
   port        = 80
   protocol    = "HTTP"
-  vpc_id      = var.vpcid
+  vpc_id      = data.aws_vpc.default.id
   target_type = "ip"
  
   health_check {
