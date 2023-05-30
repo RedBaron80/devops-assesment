@@ -1,5 +1,5 @@
 # Álvaro's DevOps Assessment Homework
-This is the Travelperk's home assignment, consisting in three mayor blocks
+This home assignment consists in three mayor blocks
 1. Dockerize the application
 2. Terraforming the infrastructure needed to run the application
 3. CI/CD workflow
@@ -56,13 +56,13 @@ The CI/CD process is done using Github actions. You can find the definitions at 
 When a master's Pull Request is opened, the unit tests are run. If they fail, the branch protection rule would not allow to merge.
 
 ### Build & deploy when PR merged
-When a PR is merged, The docker image is created and published in the first job. If succeded, it gets deployed in the ECS cluster. 
+When a PR is merged, two jobs are run one after the other. The docker image is created and published in the first job. If succeded, it gets deployed in the ECS cluster. 
 
 ## Troubles I faced
 
 1 - The branch protection rules are not enforced if not upgraded to a higher plan
 ![Branch protection rule not enforced](docs/branch.png "Branch protection rule")
 
-2 - I could not read or create log groups due to lack of permissions. 
+2 - I could use a TAG to deploy to ECS when pushing to a branch, but not when merging a PR. Using the commit SHA instead (I try to avoid using "latest" as much as I can)
 
-3 - I could not make a proper image tag when building the image in github actions.
+3 - I could not read or create log groups due to lack of permissions. Not blocking.

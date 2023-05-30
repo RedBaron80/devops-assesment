@@ -47,7 +47,7 @@ resource "aws_ecs_task_definition" "task_definition" {
   EOF
   }
 
-# Create the ECS service
+# Create the ECS service, consisting of a two load-balanced tasks, using the three subnets.
 resource "aws_ecs_service" "service" {
   name            = var.app_name
   cluster         = aws_ecs_cluster.cluster.id
